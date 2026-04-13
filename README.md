@@ -14,14 +14,24 @@ In a traditional academic setting, sharing digital notes often relies on central
 
 ---
 
-## 🌐 Distributed Computing (DC) Concepts Used
+## 🌐 Distributed Computing (DC) Core Concepts
 
-This project fundamentally demonstrates key principles of **Distributed Computing**:
+This project was built from the ground up to demonstrate several foundational concepts taught in advanced Distributed Computing courses:
 
-1. **Decentralized Storage:** Data is distributed across multiple autonomous nodes rather than residing in a single centralized database. This eliminates the storage cost on the central server and prevents a single point of failure for data hosting.
-2. **Peer-to-Peer (P2P) Communication:** Nodes act as both clients (requesting files) and servers (providing files). When Peer A downloads a file from Peer B, they communicate directly, bypassing the central tracker.
-3. **Heartbeat Mechanism (Fault Tolerance):** In distributed networks, nodes can disconnect unpredictably. To maintain an accurate view of the network state, peers send periodic "heartbeats" to the tracker. If a node fails to send a heartbeat within a specific TTL (Time-To-Live), the tracker assumes it has failed or disconnected and flags its files as unavailable.
-4. **Data Hashing & Integrity:** Files are identified universally by their SHA-256 cryptographic hashes. This ensures data integrity during the P2P transfer; if a downloaded chunk does not match the metadata hash declared on the tracker, the network immediately rejects it.
+1. **Decentralized Storage & Replication**
+   Rather than storing files on a single monolithic server, data is hosted across autonomous edge nodes. As more users download a file, the file is inherently replicated across the network. This naturally mitigates any single point of failure and drastically reduces storage and bandwidth overhead on the central server.
+   
+2. **Peer-to-Peer (P2P) Network Topology**
+   Nodes in this system are symmetric; they act as both *clients* (consuming data) and *servers* (providing data). This contrasts with traditional Client-Server architectures. When Peer A wants a file from Peer B, they establish a direct HTTP stream, completely bypassing the Tracker during the heavy data transfer phase.
+
+3. **Fault Tolerance via Heartbeats**
+   In distributed systems, partial network failures and node disconnections are inevitable. To gracefully handle this, the system implements an asynchronous "Heartbeat mechanism." Nodes constantly broadcast lightweight pings to the Tracker. If the Tracker doesn't receive a ping within the TTL (Time-To-Live) window, it dynamically flags the node as "offline", ensuring the UI always serves fresh, active routes.
+
+4. **Data Integrity & Cryptographic Hashing**
+   Because file chunks are downloaded from autonomous peers, the system cannot trust filename strings alone for addressing. The project uses cryptographic SHA-256 hashes to universally identify and verify files. If a downloaded chunk does not mathematically match the requested hash from the Tracker, the data is rejected, ensuring strict safety across the untrusted network.
+
+5. **Scalability & Load Distribution**
+   In centralized systems, a spike in downloads creates a massive bottleneck. In this P2P project, the architecture thrives on load; as more users download a specific note, they immediately begin seeding it. This allows the network's collective upload bandwidth to scale horizontally automatically parallel to user demand.
 
 ---
 
@@ -102,13 +112,39 @@ If the original author of a note turns off their computer, their heartbeats will
 
 ---
 
-## 🛠️ How to Run Locally
+## 🎓 Presentation Day: Step-by-Step Setup Guide
 
-1. **Tracker Setup:** 
-   Navigate to the `tracker` directory, install dependencies (`pip install -r requirements.txt`), and start the FastAPI uvicorn server. It requires a valid `MONGO_URI` in an `.env` file to store metadata.
-   
-2. **Peer Setup:** 
-   Navigate to the `peer` directory. You can start multiple peers on the same machine by assigning them different ports (e.g., 9001, 9002) using `.env`.
-   
-3. **Frontend UI:** 
-   Navigate to the `frontend` directory, run `npm install`, and start the development server using `npm run dev`. Connect the UI to your desired local peer port.
+Since your Tracker and Frontend UI are already deployed in the cloud (Render & Vercel), you only need to run the actual "Peers" locally on your laptop to prove the P2P network works!
+
+Follow these exact steps to run a flawless live demonstration:
+
+### Step 1: Run Peer A (Alice) Locally
+You can inject environment variables directly into the command to avoid messing with `.env` files.
+1. Open a terminal and navigate to the `peer` directory.
+2. Run Alice's node on port 9001. *(Note: We pass your specific Render Tracker URL so the laptop finds the cloud directory!)*
+   ```bash
+   TRACKER_URL="https://dc-project-nq5z.onrender.com" PEER_ID=peer1 PEER_NAME=Alice PEER_PORT=9001 PEER_STORAGE_DIR=./data/alice DOWNLOAD_DIR=./downloads/alice uvicorn app:app --port 9001
+   ```
+> *Leave this running. Alice is now actively sending heartbeats over the internet to your cloud Tracker!*
+
+### Step 2: Run Peer B (Bob) Locally
+1. Open a **second terminal** and navigate to the same `peer` directory.
+2. Run Bob's node on port 9002:
+   ```bash
+   TRACKER_URL="https://dc-project-nq5z.onrender.com" PEER_ID=peer2 PEER_NAME=Bob PEER_PORT=9002 PEER_STORAGE_DIR=./data/bob DOWNLOAD_DIR=./downloads/bob uvicorn app:app --port 9002
+   ```
+> *Leave this running. Bob is now also online on port 9002.*
+
+### Step 3: Bypass Browser Security (Crucial for Demo!) ⚠️
+Because your Vercel website uses a secure `https://` connection, but your local Peers run on your laptop at `http://127.0.0.1`, Google Chrome will block the connection by default (This is called a Mixed Content Warning).
+1. Open your Vercel website in Chrome.
+2. Click the **Lock Icon / Site Information** button right next to the URL in the top address bar.
+3. Go to **Site Settings**, find **Insecure Content**, and change it from Block to **Allow**.
+4. Refresh the page!
+
+### Step 4: The Live Demo Flow! 🔥
+1. **Act as Alice (Provider):** On your Vercel website, ensure the "Current peer API" box says `http://127.0.0.1:9001` and click **Refresh Status**. In the UI, upload a dummy PDF file and title it "DC Notes".
+2. **Act as Bob (Consumer):** Change the "Current peer API" input box to `http://127.0.0.1:9002` and click **Refresh Status**. You are now securely controlling Bob!
+3. **P2P Magic:** As Bob, search for "DC Notes". The Vercel UI will ask the Render Tracker where the file is. It will reply that Alice (port 9001) has it. When you click download, watch your two Mac terminals—you will literally see Bob (9002) connecting locally and pulling the file chunks directly from Alice (9001) without involving the cloud database anymore!
+
+**Boom! You just demonstrated a completely functional Decentralized Network! 💯**
