@@ -1,555 +1,114 @@
-# DC_project - Peer-to-Peer Notes Sharing System
+# 🌍 Our Awesome Distributed Note-Sharing Network! 🚀
 
-This is a Distributed Computing project where students can share notes and PDFs with each other using multiple peer nodes.
+Hello there! Welcome to the **P2P Notes** project. If you are wondering what this project is all about, you are in the right place!
 
-The most important idea:
+We are going to explain everything about this project, step by step, as if you were 10 years old. Don't worry about big fancy words—we'll break them all down. Grab a juice box and let's go! 🧃
 
-```text
-MongoDB stores only information about the PDF.
-The actual PDF file is stored inside peer folders like data/peer1, data/peer2, data/peer3.
-```
+---
 
-So if you upload a PDF from Peer 1, the real file is first stored in:
+## 🤔 First of all, what is the Project?
 
-```text
-data/peer1/
-```
+Imagine you are in a big classroom with 50 students. Everyone takes their own notes for different subjects. Usually, if you want someone's notes, you have to ask them to print a copy, or maybe there's one giant locker (a central server) where everybody dumps their notes. But if the locker gets stuck or the key is lost, NOBODY gets notes. 😭
 
-If Peer 2 downloads it, the same PDF becomes replicated in:
+Instead, what if everyone just kept their own notebooks in their own bags? But, to know who has what, there is one giant **address book** at the front desk. 
+- You look at the address book. 📖
+- It says: *"Sally has the Science notes for Semester 2 in her bag."*
+- You walk directly over to Sally and say, *"Hey, can I copy your Science notes?"*
+- Sally says, *"Sure!"* and you copy them directly from her. 📝
 
-```text
-data/peer1/
-data/peer2/
-```
+**That is exactly what this project does!** But instead of notebooks and backpacks, it uses computers! It is a system where students (computers) share their digital notes directly with each other over the internet, while a directory (the Tracker) simply keeps track of who has what. 
 
-If Peer 3 also downloads it, the same PDF becomes replicated in:
+---
 
-```text
-data/peer1/
-data/peer2/
-data/peer3/
-```
+## ⚡ What does "DC" mean and WHY is this a DC Project?
 
-MongoDB does not store the PDF file. MongoDB stores metadata like filename, subject, file hash, file size, and which peer has the file.
+You might have heard the phrase **"DC Project"**. 
+**DC** stands for **Distributed Computing**. 
 
-## Explain Like I Am 5
+### What is Distributed Computing? (The 10-year-old explanation)
+Normally, when you use a website like YouTube or Netflix, all the videos are saved on giant supercomputers owned by one big company. You and millions of others connect to *their* computers to watch the video. This is called **Centralized Computing**. One big boss computer is doing all the heavy lifting.
 
-Imagine 3 students:
+But in **Distributed Computing**, there is NO big boss computer hoarding all the files! Instead, the work and the files are spread out across *everyone's* computers. The system works because a bunch of small computers team up to act like one giant computer! 
 
-```text
-Peer 1 = Student A
-Peer 2 = Student B
-Peer 3 = Student C
-```
+### Why is OUR project a "DC" project?
+Because when someone uploads a notes file, it doesn't go to a magical cloud server owned by us. 
+1. **The file stays on your computer!** 
+2. Other people connect directly to **your computer** to download it. 
+3. The computers form a cool "spider-web" connection together. We call this **P2P** (Peer-to-Peer). You are a "Peer" (a friend) sharing directly with another "Peer"!
 
-There is also one notebook called the tracker:
+This means we use the power of *everyone's* computer combined. Because the work is distributed (spread out) among everyone, it is literally a **Distributed Computing** project!
 
-```text
-Tracker = a notebook that says who has which PDF
-```
+---
 
-When Student A uploads a PDF:
+## 🧩 The Magic Parts: How is it Built?
 
-```text
-Student A keeps the real PDF in his bag.
-The tracker writes: Student A has this PDF.
-```
+Our project is divided into three main pieces:
 
-When Student B wants the PDF:
+1. **The Tracker 📍 (The Address Book)** 
+   - This is the only central part. It DOES NOT store any files! It's super fast and lightweight. It only stores names and locations. It keeps an eye on who is online and what notes they own. Built with Python and MongoDB (a database).
+   
+2. **The Peer 💻 (Your Computer)**
+   - This is the app that runs on your laptop. It talks to the Tracker to say "I'm online!" and it also talks directly to other Peers to say "Give me that file!". Built with Python.
+   
+3. **The Frontend 🎨 (The Beautiful Buttons)**
+   - This is the webpage you click on. Without this, you'd have to type boring green code into a black screen. This gives you nice buttons, search bars, and colorful cards! Built with React.
 
-```text
-Student B asks the tracker: Who has this PDF?
-Tracker says: Student A has it.
-Student B takes the PDF directly from Student A.
-Now Student B also has a copy.
-Tracker writes: Student A and Student B have this PDF.
-```
+---
 
-Now if Student A goes home:
+## 🎬 Every Scenario Explained! 
 
-```text
-Student C asks the tracker: Who has this PDF?
-Tracker says: Student B has it.
-Student C takes the PDF from Student B.
-```
+Let's walk through literally every single thing that happens in this project, scenario by scenario. 
 
-This is why it is called peer-to-peer sharing. Peers share files with other peers.
+### Scenario 1: A New Friend Joins the Classroom (Peer Registration & Heartbeats)
+**What happens:** You turn your computer on and open the app.
+**The "DC" Magic:** Your computer (the Peer) immediately sends a message to the Address Book (Tracker) saying, *"Hey, I'm Peer 1, I am awake, and my IP address is this!"*. The Tracker writes your name down.
+**But what if your computer crashes?** In Distributed Computing, computers break all the time. To fix this, your computer sends a "Heartbeat" (a tiny message saying *"I am still alive! 💓"*) every 10 seconds. If the Tracker doesn't hear a heartbeat from you for 30 seconds, it crosses your name off the list and tells everyone you went offline. You are safe!
 
-## Why This Is a Distributed Computing Project
+### Scenario 2: You Want to Share Your Awesome Notes (File Announce)
+**What happens:** You click "Upload", choose your PDF, type "Math Notes", and hit enter.
+**The "DC" Magic:** Again, the file DOES NOT jump into the cloud. It stays neatly inside your `data` folder on your laptop. You slice the file into chunks. Then, your computer tells the Tracker: *"Hey! I have a file named Math Notes, and its secret fingerprint (hash code) is XYZ."* 
+Now, everyone in the system knows you have it, but they haven't downloaded it yet!
 
-This is not just a normal upload-download website.
+### Scenario 3: Looking for Notes (Searching)
+**What happens:** Another student, Bob, types "Math Notes" into his search bar. 
+**The "DC" Magic:** Bob's computer asks the Tracker: *"Who has Math Notes?"*
+The Tracker looks at its giant list and replies: *"Here's a list. Peer 1 (you) has it, and they are currently online!"* Bob's computer now knows exactly where to go. 
 
-In a normal website:
+### Scenario 4: The Actual Download (P2P File Transfer)
+**What happens:** Bob clicks the "Download" button on your Math Notes. 
+**The "DC" Magic:** This is where the true Distributed Computing power shines! Bob's computer ignores the Tracker completely. Bob's computer builds a direct, invisible tunnel straight to YOUR computer. 
+Bob says: *"Please give me chunk 1 of the Math Notes."*
+Your computer says: *"Here you go!"*
+Bob's computer saves it straight to his `downloads` folder. Now, *two* people have the math notes! If a third person wants them, they can download from Bob OR from you! The network just keeps getting stronger. 💪
 
-```text
-User -> Central Server -> File
-```
+### Scenario 5: The File is Missing! (Offline Peers)
+**What happens:** Sally clicks on "History Notes", but the person who originally uploaded them turned off their laptop to go to bed. 😴
+**The "DC" Magic:** The tracker realizes the person is offline (because their heartbeats stopped). It won't let Sally download it right now because the file is asleep on someone's laptop. But if Bob logged in, and Bob previously downloaded those history notes, Sally could download them directly from Bob instead! True teamwork!
 
-In this project:
+---
 
-```text
-User -> Peer Node -> Other Peer Node -> File
-```
+## 🎓 Why is this super cool for developers?
 
-Multiple peer nodes work together. The tracker helps them find each other, but the actual PDF transfer happens between peers.
+If you are a bit older than 10 and want to know why we built it this way:
 
-Distributed Computing concepts used:
+- **No Single Point of Failure (for storage):** By keeping files distributed, if one peer goes down, the system doesn't lose all the data forever, as long as someone else replicated the file!
+- **Less Server Cost:** Storing terabytes of files on a central cloud database is super expensive! By storing them on user devices (peers), the server cost drops to almost 0. It only has to host lightweight text metadata!
+- **Scalability:** As more users join, they bring more download power and storage space with them. The network gets really fast as it grows! 
 
-| DC Topic | Where It Is Used |
-|---|---|
-| Distributed system | Multiple peers run on different ports and work together. |
-| Middleware | Tracker works like middleware for peer discovery. |
-| IPC / RPC | Peers call each other's API endpoints over HTTP. |
-| Message-oriented communication | Peers send register, heartbeat, announce, and search messages. |
-| Stream-oriented communication | PDF files are downloaded as bytes from one peer to another. |
-| Group communication idea | Tracker knows all active peers and their files. |
-| Replication | Same PDF can exist on Peer 1, Peer 2, and Peer 3. |
-| Consistency | SHA-256 hash checks that copied PDF is the same file. |
-| Fault tolerance | If one peer goes down, another peer can still give the PDF if it has a replica. |
-| Recovery | When a peer restarts, it registers again with the tracker. |
-| Distributed file system idea | Files are spread across peers instead of kept in one server. |
+---
 
-## Architecture Diagram
+## 🛠️ How to run it yourself! (For the Big Kids)
 
-```mermaid
-flowchart TD
-    U["User in Browser"] --> UI["React + Vite Frontend"]
-    UI --> P1["Peer 1 API<br/>localhost:9001<br/>stores files in data/peer1"]
-    UI --> P2["Peer 2 API<br/>localhost:9002<br/>stores files in data/peer2"]
-    UI --> P3["Peer 3 API<br/>localhost:9003<br/>stores files in data/peer3"]
+1. **Start the Tracker Server:** Go into the `tracker` folder and start the FastAPI server. It will connect to MongoDB to keep track of everyone.
+2. **Start Peer 1:** Go into the `peer` folder, give it a unique port (like 9001), and start it. 
+3. **Start Peer 2:** Open a new terminal, and start another peer on a different port (like 9002).
+4. **Start the UI:** Go to the `frontend` folder, run `npm install` and `npm run dev`.
 
-    P1 --> T["Tracker API<br/>localhost:8000"]
-    P2 --> T
-    P3 --> T
+Now you can upload a file on Peer 1, and watch Peer 2 magically discover it and download it directly from Peer 1's computer folder to its own! 
 
-    T --> DB["MongoDB Atlas<br/>metadata only"]
+---
 
-    P2 -- "download PDF directly" --> P1
-    P3 -- "download PDF directly" --> P2
-```
+### 🎉 Conclusion
+And that's it! You've just learned what a **Distributed Computing Project** is! By having computers talk to each other as helpful friends instead of relying on one big boss-server, we created a magical, robust, and cost-free way to share knowledge. 
 
-## What Each Part Does
-
-### Frontend
-
-Technology:
-
-```text
-React + Vite
-```
-
-Why used:
-
-```text
-It gives a simple web page where the user can upload, search, and download notes.
-```
-
-### Tracker Server
-
-Technology:
-
-```text
-Python FastAPI
-```
-
-Runs at:
-
-```text
-http://127.0.0.1:8000
-```
-
-Why used:
-
-```text
-It is the discovery server. It tells peers where a PDF is stored.
-```
-
-Tracker stores this information in MongoDB:
-
-```text
-peer_id
-peer_name
-peer_port
-online/offline status
-filename
-subject
-semester
-file_hash
-file_size
-which peers have the PDF
-```
-
-Tracker does not store the PDF file itself.
-
-### Peer Servers
-
-Technology:
-
-```text
-Python FastAPI
-```
-
-Runs at:
-
-```text
-Peer 1: http://127.0.0.1:9001
-Peer 2: http://127.0.0.1:9002
-Peer 3: http://127.0.0.1:9003
-```
-
-Why used:
-
-```text
-Each peer acts like one student's machine.
-Each peer can store PDFs and send PDFs to another peer.
-```
-
-Physical file storage:
-
-```text
-Peer 1 files -> data/peer1/
-Peer 2 files -> data/peer2/
-Peer 3 files -> data/peer3/
-```
-
-Each peer also has an `index.json` file that remembers its local files.
-
-### MongoDB
-
-Technology:
-
-```text
-MongoDB Atlas
-```
-
-Why used:
-
-```text
-MongoDB stores metadata in a flexible document format.
-It is good for data like peers, files, and replicas.
-```
-
-Important:
-
-```text
-MongoDB stores metadata only.
-MongoDB does not store the uploaded PDF.
-```
-
-### SHA-256 Hash
-
-Why used:
-
-```text
-It checks whether the downloaded PDF is exactly the same as the uploaded PDF.
-```
-
-If the hash matches:
-
-```text
-The file is correct.
-```
-
-If the hash does not match:
-
-```text
-The file is corrupted or changed, so the app rejects it.
-```
-
-## Main Scenarios
-
-### Scenario 1: Upload a PDF from Peer 1
-
-User selects:
-
-```text
-Current peer API = http://127.0.0.1:9001
-```
-
-Then user uploads a PDF.
-
-What happens:
-
-```text
-1. The PDF is saved inside data/peer1/.
-2. Peer 1 calculates the SHA-256 file hash.
-3. Peer 1 tells tracker: I have this PDF.
-4. Tracker stores metadata in MongoDB.
-```
-
-Result:
-
-```text
-The actual PDF is in data/peer1/.
-MongoDB only knows that Peer 1 has it.
-```
-
-### Scenario 2: Search for a PDF
-
-User searches by filename, subject, or semester.
-
-What happens:
-
-```text
-1. Frontend asks the current peer.
-2. Current peer asks the tracker.
-3. Tracker checks MongoDB.
-4. Tracker returns matching files and replica list.
-```
-
-Result example:
-
-```text
-Stored on: Peer One (online)
-```
-
-This means the PDF is currently available from Peer 1.
-
-### Scenario 3: Download PDF from Peer 1 to Peer 2
-
-User selects:
-
-```text
-Current peer API = http://127.0.0.1:9002
-```
-
-Then user clicks Download.
-
-What happens:
-
-```text
-1. Peer 2 asks tracker: Who has this PDF?
-2. Tracker says: Peer 1 has it.
-3. Peer 2 downloads the PDF directly from Peer 1.
-4. Peer 2 checks SHA-256 hash.
-5. Peer 2 saves the PDF inside data/peer2/.
-6. Peer 2 tells tracker: I also have this PDF now.
-7. Browser also saves a copy to your normal Downloads folder.
-```
-
-Result:
-
-```text
-The PDF is now replicated.
-It is stored in data/peer1/ and data/peer2/.
-```
-
-### Scenario 4: Peer 1 Goes Down Before Replication
-
-If the PDF exists only on Peer 1:
-
-```text
-Stored on: Peer One only
-```
-
-And Peer 1 goes down:
-
-```text
-Peer 2 cannot download the PDF.
-Peer 3 cannot download the PDF.
-```
-
-Why:
-
-```text
-No other peer has a copy yet.
-```
-
-Viva explanation:
-
-```text
-Fault tolerance is not possible with only one copy. We need replication.
-```
-
-### Scenario 5: Peer 1 Goes Down After Replication
-
-If the PDF exists on Peer 1 and Peer 2:
-
-```text
-Stored on: Peer One, Peer Two
-```
-
-And Peer 1 goes down:
-
-```text
-Peer 3 can still download the PDF from Peer 2.
-```
-
-Why:
-
-```text
-Peer 2 has a replica.
-```
-
-Viva explanation:
-
-```text
-The system is fault-tolerant after replication because the file survives even if one peer fails.
-```
-
-### Scenario 6: Tracker Goes Down
-
-If tracker is down:
-
-```text
-Peers may still have PDFs in their local folders.
-But search and discovery will not work properly.
-```
-
-Why:
-
-```text
-The tracker is the directory that tells peers where files are located.
-```
-
-Viva explanation:
-
-```text
-This project uses a tracker-based P2P design. The tracker is a discovery service. A future improvement is backup tracker election.
-```
-
-### Scenario 7: MongoDB Goes Down
-
-If MongoDB is down:
-
-```text
-The tracker cannot read or write metadata.
-Search, registration, and file announce may fail.
-```
-
-But:
-
-```text
-Already downloaded PDFs still exist inside peer folders.
-```
-
-Viva explanation:
-
-```text
-MongoDB is the metadata store. File data is still distributed across peers, but discovery needs metadata.
-```
-
-### Scenario 8: Peer Restarts
-
-When a peer starts:
-
-```text
-1. It registers with tracker.
-2. It sends heartbeat messages.
-3. Tracker marks it online.
-```
-
-Viva explanation:
-
-```text
-Heartbeat messages help the tracker detect whether a peer is online or offline.
-```
-
-## How To Run
-
-Install Python dependencies:
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
-
-Install frontend dependencies:
-
-```bash
-cd frontend
-npm install
-cd ..
-```
-
-Create `.env`:
-
-```bash
-cp .env.example .env
-```
-
-Put your MongoDB URI in `.env`:
-
-```text
-MONGODB_URI="your MongoDB URI"
-```
-
-Start tracker:
-
-```bash
-.venv/bin/uvicorn tracker.app:app --host 127.0.0.1 --port 8000
-```
-
-Start Peer 1:
-
-```bash
-PEER_ID=peer1 PEER_NAME="Peer One" PEER_PORT=9001 PEER_STORAGE_DIR=./data/peer1 .venv/bin/uvicorn peer.app:app --host 127.0.0.1 --port 9001
-```
-
-Start Peer 2:
-
-```bash
-PEER_ID=peer2 PEER_NAME="Peer Two" PEER_PORT=9002 PEER_STORAGE_DIR=./data/peer2 .venv/bin/uvicorn peer.app:app --host 127.0.0.1 --port 9002
-```
-
-Start Peer 3:
-
-```bash
-PEER_ID=peer3 PEER_NAME="Peer Three" PEER_PORT=9003 PEER_STORAGE_DIR=./data/peer3 .venv/bin/uvicorn peer.app:app --host 127.0.0.1 --port 9003
-```
-
-Start frontend:
-
-```bash
-cd frontend
-npm run dev
-```
-
-Open:
-
-```text
-http://127.0.0.1:5173
-```
-
-If port 5173 is busy, Vite may show another URL like:
-
-```text
-http://127.0.0.1:5174
-```
-
-## Demo Steps For Presentation
-
-1. Start tracker, Peer 1, Peer 2, Peer 3, and frontend.
-2. Open the frontend.
-3. Set Current peer API to `http://127.0.0.1:9001`.
-4. Upload a PDF.
-5. Search the PDF and show: `Stored on: Peer One`.
-6. Set Current peer API to `http://127.0.0.1:9002`.
-7. Search and click Download.
-8. Show that now it says: `Stored on: Peer One, Peer Two`.
-9. Stop Peer 1.
-10. Set Current peer API to `http://127.0.0.1:9003`.
-11. Search and download the PDF from Peer 2.
-12. Explain that replication made the system fault-tolerant.
-
-## Useful URLs
-
-```text
-Frontend:       http://127.0.0.1:5173
-Tracker health: http://127.0.0.1:8000/health
-Tracker peers:  http://127.0.0.1:8000/peers
-Tracker search: http://127.0.0.1:8000/files/search?q=your-search
-Peer 1 info:    http://127.0.0.1:9001/info
-Peer 2 info:    http://127.0.0.1:9002/info
-Peer 3 info:    http://127.0.0.1:9003/info
-```
-
-## Important GitHub Note
-
-The `.env` file contains private secrets, so it is ignored by Git.
-
-Do not upload `.env` to GitHub.
-
-Only upload `.env.example`, because it contains safe example values.
-
+Now go share some notes! 📝✨
