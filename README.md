@@ -118,31 +118,41 @@ Since your Tracker and Frontend UI are already deployed in the cloud (Render & V
 
 Follow these exact steps to run a flawless live demonstration:
 
-### Step 1: Run Peer A (Alice) Locally
+### Step 1: Setup Local Environment
+Before running the peers, ensure your Python environment is set up and dependencies are installed.
+1. Open a terminal in the root folder of the project.
+2. Create and activate a virtual environment, then install the required packages:
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
+
+### Step 2: Run Peer A (Alice) Locally
 You can inject environment variables directly into the command to avoid messing with `.env` files.
-1. Open a terminal and navigate to the `peer` directory.
+1. Open a terminal and navigate to the `peer` directory. (Make sure your `.venv` is activated: `source ../.venv/bin/activate`)
 2. Run Alice's node on port 9001. *(Note: We pass your specific Render Tracker URL so the laptop finds the cloud directory!)*
    ```bash
    TRACKER_URL="https://dc-project-nq5z.onrender.com" PEER_ID=peer1 PEER_NAME=Alice PEER_PORT=9001 PEER_STORAGE_DIR=./data/alice DOWNLOAD_DIR=./downloads/alice uvicorn app:app --port 9001
    ```
 > *Leave this running. Alice is now actively sending heartbeats over the internet to your cloud Tracker!*
 
-### Step 2: Run Peer B (Bob) Locally
-1. Open a **second terminal** and navigate to the same `peer` directory.
+### Step 3: Run Peer B (Bob) Locally
+1. Open a **second terminal** and navigate to the same `peer` directory. (Activate `.venv` here as well: `source ../.venv/bin/activate`)
 2. Run Bob's node on port 9002:
    ```bash
    TRACKER_URL="https://dc-project-nq5z.onrender.com" PEER_ID=peer2 PEER_NAME=Bob PEER_PORT=9002 PEER_STORAGE_DIR=./data/bob DOWNLOAD_DIR=./downloads/bob uvicorn app:app --port 9002
    ```
 > *Leave this running. Bob is now also online on port 9002.*
 
-### Step 3: Bypass Browser Security (Crucial for Demo!) ⚠️
+### Step 4: Bypass Browser Security (Crucial for Demo!) ⚠️
 Because your Vercel website uses a secure `https://` connection, but your local Peers run on your laptop at `http://127.0.0.1`, Google Chrome will block the connection by default (This is called a Mixed Content Warning).
 1. Open your Vercel website in Chrome.
 2. Click the **Lock Icon / Site Information** button right next to the URL in the top address bar.
 3. Go to **Site Settings**, find **Insecure Content**, and change it from Block to **Allow**.
 4. Refresh the page!
 
-### Step 4: The Live Demo Flow! 🔥
+### Step 5: The Live Demo Flow! 🔥
 1. **Act as Alice (Provider):** On your Vercel website, ensure the "Current peer API" box says `http://127.0.0.1:9001` and click **Refresh Status**. In the UI, upload a dummy PDF file and title it "DC Notes".
 2. **Act as Bob (Consumer):** Change the "Current peer API" input box to `http://127.0.0.1:9002` and click **Refresh Status**. You are now securely controlling Bob!
 3. **P2P Magic:** As Bob, search for "DC Notes". The Vercel UI will ask the Render Tracker where the file is. It will reply that Alice (port 9001) has it. When you click download, watch your two Mac terminals—you will literally see Bob (9002) connecting locally and pulling the file chunks directly from Alice (9001) without involving the cloud database anymore!
