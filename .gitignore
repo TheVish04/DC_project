@@ -1,0 +1,15 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+node_modules/
+dist/
+downloads/*
+!downloads/.gitkeep
+data/peer*/index.json
+data/peer*/*
+!data/peer1/.gitkeep
+!data/peer2/.gitkeep
+!data/peer3/.gitkeep
+
