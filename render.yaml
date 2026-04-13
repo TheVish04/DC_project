@@ -1,0 +1,48 @@
+version: "1"
+services:
+  - type: web
+    name: p2p-tracker
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn tracker.app:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: MONGO_URI
+        sync: false # You must set your MongoDB URI in the Render Dashboard when deploying
+
+  - type: web
+    name: p2p-demo-peer
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn peer.app:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: TRACKER_URL
+        fromService:
+          type: web
+          name: p2p-tracker
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: PEER_BASE_URL
+        fromService:
+          type: web
+          name: p2p-demo-peer
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: PEER_NAME
+        value: "Cloud Demo Peer"
+      - key: PEER_ID
+        value: "demo-peer-cloud"
+
+  - type: web
+    name: p2p-frontend
+    env: static
+    buildCommand: "cd frontend && npm install && npm run build"
+    staticPublishPath: "./frontend/dist"
+    envVars:
+      - key: VITE_TRACKER_URL
+        fromService:
+          type: web
+          name: p2p-tracker
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: VITE_PEER_URL
+        fromService:
+          type: web
+          name: p2p-demo-peer
+          envVarKey: RENDER_EXTERNAL_URL

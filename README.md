@@ -53,6 +53,40 @@ Our project is divided into three main pieces:
 3. **The Frontend 🎨 (The Beautiful Buttons)**
    - This is the webpage you click on. Without this, you'd have to type boring green code into a black screen. This gives you nice buttons, search bars, and colorful cards! Built with React.
 
+### 🗺️ The Architecture Map (How it all connects)
+
+```mermaid
+graph TD
+    classDef tracker fill:#f9f,stroke:#333,stroke-width:4px,color:#000;
+    classDef peer fill:#bbf,stroke:#333,stroke-width:2px,color:#000;
+    classDef ui fill:#bfb,stroke:#333,stroke-width:2px,color:#000;
+    classDef db fill:#ff9,stroke:#333,stroke-width:2px,color:#000;
+
+    Tracker["📍 Tracker (The Address Book)"]:::tracker
+    DB[("🗄️ MongoDB (Stores Names & Locations)")]:::db
+    
+    subgraph "Your Computer"
+        UI1["🎨 Frontend (Webpage)"]:::ui
+        Peer1["💻 Peer 1 (Has Notes)"]:::peer
+    end
+
+    subgraph "Friend's Computer"
+        UI2["🎨 Frontend (Webpage)"]:::ui
+        Peer2["💻 Peer 2 (Needs Notes)"]:::peer
+    end
+
+    Tracker <-->|Reads / Writes| DB
+    
+    Peer1 -->|1. I am alive! Here are my files| Tracker
+    Peer2 -->|2. Who has Math Notes?| Tracker
+    Tracker -.->|3. Peer 1 has them!| Peer2
+    
+    Peer2 <==>|4. Direct Download! (P2P)| Peer1
+
+    UI1 <-->|Clicks buttons| Peer1
+    UI2 <-->|Clicks buttons| Peer2
+```
+
 ---
 
 ## 🎬 Every Scenario Explained! 
