@@ -1,148 +1,114 @@
-# 🌍 Our Awesome Distributed Note-Sharing Network! 🚀
+# P2P Notes Sharing Network 🚀
 
-Hello there! Welcome to the **P2P Notes** project. If you are wondering what this project is all about, you are in the right place!
+Welcome to the **P2P Notes** project. This repository contains the source code for a Distributed Computing (DC) based file-sharing system tailored for sharing academic notes across a peer-to-peer network. 
 
-We are going to explain everything about this project, step by step, as if you were 10 years old. Don't worry about big fancy words—we'll break them all down. Grab a juice box and let's go! 🧃
-
----
-
-## 🤔 First of all, what is the Project?
-
-Imagine you are in a big classroom with 50 students. Everyone takes their own notes for different subjects. Usually, if you want someone's notes, you have to ask them to print a copy, or maybe there's one giant locker (a central server) where everybody dumps their notes. But if the locker gets stuck or the key is lost, NOBODY gets notes. 😭
-
-Instead, what if everyone just kept their own notebooks in their own bags? But, to know who has what, there is one giant **address book** at the front desk. 
-- You look at the address book. 📖
-- It says: *"Sally has the Science notes for Semester 2 in her bag."*
-- You walk directly over to Sally and say, *"Hey, can I copy your Science notes?"*
-- Sally says, *"Sure!"* and you copy them directly from her. 📝
-
-**That is exactly what this project does!** But instead of notebooks and backpacks, it uses computers! It is a system where students (computers) share their digital notes directly with each other over the internet, while a directory (the Tracker) simply keeps track of who has what. 
+This README provides a comprehensive overview of the system architecture, Distributed Computing concepts used, and a step-by-step breakdown of how the network operates.
 
 ---
 
-## ⚡ What does "DC" mean and WHY is this a DC Project?
+## 🖥️ What is this Project?
 
-You might have heard the phrase **"DC Project"**. 
-**DC** stands for **Distributed Computing**. 
+In a traditional academic setting, sharing digital notes often relies on centralized servers (e.g., Google Drive, institutional portals). If the central server experiences downtime, no one can access the files.
 
-### What is Distributed Computing? (The 10-year-old explanation)
-Normally, when you use a website like YouTube or Netflix, all the videos are saved on giant supercomputers owned by one big company. You and millions of others connect to *their* computers to watch the video. This is called **Centralized Computing**. One big boss computer is doing all the heavy lifting.
-
-But in **Distributed Computing**, there is NO big boss computer hoarding all the files! Instead, the work and the files are spread out across *everyone's* computers. The system works because a bunch of small computers team up to act like one giant computer! 
-
-### Why is OUR project a "DC" project?
-Because when someone uploads a notes file, it doesn't go to a magical cloud server owned by us. 
-1. **The file stays on your computer!** 
-2. Other people connect directly to **your computer** to download it. 
-3. The computers form a cool "spider-web" connection together. We call this **P2P** (Peer-to-Peer). You are a "Peer" (a friend) sharing directly with another "Peer"!
-
-This means we use the power of *everyone's* computer combined. Because the work is distributed (spread out) among everyone, it is literally a **Distributed Computing** project!
+**P2P Notes** solves this by utilizing a **Tracker-based Peer-to-Peer (P2P) Architecture**. Instead of uploading files to a central server, users (nodes/peers) keep their files on their local machines. A central directory (the Tracker) simply maintains an index of which peers are online and what files they currently hold. When a user requests a file, they download it *directly* from another peer's machine.
 
 ---
 
-## 🧩 The Magic Parts: How is it Built?
+## 🌐 Distributed Computing (DC) Concepts Used
 
-Our project is divided into three main pieces:
+This project fundamentally demonstrates key principles of **Distributed Computing**:
 
-1. **The Tracker 📍 (The Address Book)** 
-   - This is the only central part. It DOES NOT store any files! It's super fast and lightweight. It only stores names and locations. It keeps an eye on who is online and what notes they own. Built with Python and MongoDB (a database).
-   
-2. **The Peer 💻 (Your Computer)**
-   - This is the app that runs on your laptop. It talks to the Tracker to say "I'm online!" and it also talks directly to other Peers to say "Give me that file!". Built with Python.
-   
-3. **The Frontend 🎨 (The Beautiful Buttons)**
-   - This is the webpage you click on. Without this, you'd have to type boring green code into a black screen. This gives you nice buttons, search bars, and colorful cards! Built with React.
+1. **Decentralized Storage:** Data is distributed across multiple autonomous nodes rather than residing in a single centralized database. This eliminates the storage cost on the central server and prevents a single point of failure for data hosting.
+2. **Peer-to-Peer (P2P) Communication:** Nodes act as both clients (requesting files) and servers (providing files). When Peer A downloads a file from Peer B, they communicate directly, bypassing the central tracker.
+3. **Heartbeat Mechanism (Fault Tolerance):** In distributed networks, nodes can disconnect unpredictably. To maintain an accurate view of the network state, peers send periodic "heartbeats" to the tracker. If a node fails to send a heartbeat within a specific TTL (Time-To-Live), the tracker assumes it has failed or disconnected and flags its files as unavailable.
+4. **Data Hashing & Integrity:** Files are identified universally by their SHA-256 cryptographic hashes. This ensures data integrity during the P2P transfer; if a downloaded chunk does not match the metadata hash declared on the tracker, the network immediately rejects it.
 
-### 🗺️ The Architecture Map (How it all connects)
+---
+
+## 🧩 System Architecture
+
+The network consists of three primary components:
+
+### 1. The Tracker (Discovery Service)
+- **Role:** Acts as the central directory or "phonebook" for the network.
+- **Functionality:** It does *not* store any file data. It strictly manages metadata (file names, hashes, topics) and peer states (IP addresses, ports, online/offline status).
+- **Tech Stack:** Python (FastAPI) and MongoDB.
+
+### 2. The Peer Node (Client & Server)
+- **Role:** The actual node running on a user's machine.
+- **Functionality:** Registers with the Tracker, parses local files into chunks, announces available files to the network, and opens an HTTP server to allow other peers to download files directly from its local storage.
+- **Tech Stack:** Python (FastAPI) for concurrent downloading and serving.
+
+### 3. The Frontend Client (UI)
+- **Role:** The user-facing dashboard.
+- **Functionality:** Communicates with both the local Peer API and the Tracker API to provide a seamless interface for uploading, searching, and downloading files.
+- **Tech Stack:** React (Vite).
+
+### 🗺️ System Flow Diagram
 
 ```mermaid
 graph TD
-    classDef tracker fill:#f9f,stroke:#333,stroke-width:4px,color:#000;
-    classDef peer fill:#bbf,stroke:#333,stroke-width:2px,color:#000;
-    classDef ui fill:#bfb,stroke:#333,stroke-width:2px,color:#000;
-    classDef db fill:#ff9,stroke:#333,stroke-width:2px,color:#000;
+    classDef tracker fill:#2a9d8f,stroke:#264653,stroke-width:2px,color:#fff;
+    classDef peer fill:#e9c46a,stroke:#264653,stroke-width:2px,color:#000;
+    classDef ui fill:#f4a261,stroke:#264653,stroke-width:2px,color:#000;
+    classDef db fill:#e76f51,stroke:#264653,stroke-width:2px,color:#fff;
 
-    Tracker["📍 Tracker (The Address Book)"]:::tracker
-    DB[("🗄️ MongoDB (Stores Names & Locations)")]:::db
+    Tracker["📍 Tracker (Discovery Metadata)"]:::tracker
+    DB[("🗄️ MongoDB (State & Index)")]:::db
     
-    subgraph "Your Computer"
-        UI1["🎨 Frontend (Webpage)"]:::ui
-        Peer1["💻 Peer 1 (Has Notes)"]:::peer
+    subgraph "Node A (Provider)"
+        UI1["🎨 React Frontend"]:::ui
+        Peer1["💻 Peer Service (Port 9001)"]:::peer
     end
 
-    subgraph "Friend's Computer"
-        UI2["🎨 Frontend (Webpage)"]:::ui
-        Peer2["💻 Peer 2 (Needs Notes)"]:::peer
+    subgraph "Node B (Consumer)"
+        UI2["🎨 React Frontend"]:::ui
+        Peer2["💻 Peer Service (Port 9002)"]:::peer
     end
 
-    Tracker <-->|Reads / Writes| DB
+    Tracker <-->|Read/Write Metadata| DB
     
-    Peer1 -->|1. I am alive! Here are my files| Tracker
-    Peer2 -->|2. Who has Math Notes?| Tracker
-    Tracker -.->|3. Peer 1 has them!| Peer2
+    Peer1 -->|1. Register & Heartbeat| Tracker
+    Peer1 -->|2. Announce File Metadata| Tracker
+    Peer2 -->|3. Query File Location| Tracker
+    Tracker -.->|Returns Peer 1 Address| Peer2
     
-    Peer2 <==>|4. Direct Download! (P2P)| Peer1
+    Peer2 <==>|4. Direct P2P Chunk Download| Peer1
 
-    UI1 <-->|Clicks buttons| Peer1
-    UI2 <-->|Clicks buttons| Peer2
+    UI1 <-->|REST API Calls| Peer1
+    UI2 <-->|REST API Calls| Peer2
 ```
 
 ---
 
-## 🎬 Every Scenario Explained! 
+## 🎬 Network Scenarios Explained
 
-Let's walk through literally every single thing that happens in this project, scenario by scenario. 
+Here is exactly how the system behaves under different network conditions:
 
-### Scenario 1: A New Friend Joins the Classroom (Peer Registration & Heartbeats)
-**What happens:** You turn your computer on and open the app.
-**The "DC" Magic:** Your computer (the Peer) immediately sends a message to the Address Book (Tracker) saying, *"Hey, I'm Peer 1, I am awake, and my IP address is this!"*. The Tracker writes your name down.
-**But what if your computer crashes?** In Distributed Computing, computers break all the time. To fix this, your computer sends a "Heartbeat" (a tiny message saying *"I am still alive! 💓"*) every 10 seconds. If the Tracker doesn't hear a heartbeat from you for 30 seconds, it crosses your name off the list and tells everyone you went offline. You are safe!
+### Scenario 1: Node Bootstrapping (Registration & Heartbeat)
+When a Peer application starts, it immediately sends a registration payload (containing its IP and Port) to the Tracker. To prove it is alive, the Peer opens a background asynchronous thread that pings the Tracker's `/peers/heartbeat` endpoint every 10 seconds. The Tracker updates a timestamp in MongoDB. If a node suddenly crashes, the Tracker detects the stale timestamp and marks the node as "offline."
 
-### Scenario 2: You Want to Share Your Awesome Notes (File Announce)
-**What happens:** You click "Upload", choose your PDF, type "Math Notes", and hit enter.
-**The "DC" Magic:** Again, the file DOES NOT jump into the cloud. It stays neatly inside your `data` folder on your laptop. You slice the file into chunks. Then, your computer tells the Tracker: *"Hey! I have a file named Math Notes, and its secret fingerprint (hash code) is XYZ."* 
-Now, everyone in the system knows you have it, but they haven't downloaded it yet!
+### Scenario 2: File Announcing (Seeding)
+When a user uploads a PDF note, the file is saved exclusively in their local directory. The Peer node calculates a SHA-256 hash of the file and calculates how many chunks it will be divided into. It then sends an "Announce" request to the Tracker. The Tracker updates its database to reflect that this specific hash is currently available for download at this Peer's IP address.
 
-### Scenario 3: Looking for Notes (Searching)
-**What happens:** Another student, Bob, types "Math Notes" into his search bar. 
-**The "DC" Magic:** Bob's computer asks the Tracker: *"Who has Math Notes?"*
-The Tracker looks at its giant list and replies: *"Here's a list. Peer 1 (you) has it, and they are currently online!"* Bob's computer now knows exactly where to go. 
+### Scenario 3: Resource Discovery (Searching)
+When a second user wants to find "Data Structures Sem 3", they query the system. The Frontend requests the search from the local Peer, which forwards it to the Tracker. The Tracker queries MongoDB and returns a list of files matching the query, critically including an array of IP addresses for peers currently holding the file who have sent a valid heartbeat recently.
 
-### Scenario 4: The Actual Download (P2P File Transfer)
-**What happens:** Bob clicks the "Download" button on your Math Notes. 
-**The "DC" Magic:** This is where the true Distributed Computing power shines! Bob's computer ignores the Tracker completely. Bob's computer builds a direct, invisible tunnel straight to YOUR computer. 
-Bob says: *"Please give me chunk 1 of the Math Notes."*
-Your computer says: *"Here you go!"*
-Bob's computer saves it straight to his `downloads` folder. Now, *two* people have the math notes! If a third person wants them, they can download from Bob OR from you! The network just keeps getting stronger. 💪
+### Scenario 4: Peer-to-Peer Data Transfer
+Once the user clicks "Download", the magic of Distributed Computing takes over. The requesting Peer completely ignores the Tracker and initiates a direct HTTP stream connection to the providing Peer using the IP address retrieved in Scenario 3. The file is requested, streamed, and saved locally. Now, both peers have a copy of the file, making the network stronger and more resilient!
 
-### Scenario 5: The File is Missing! (Offline Peers)
-**What happens:** Sally clicks on "History Notes", but the person who originally uploaded them turned off their laptop to go to bed. 😴
-**The "DC" Magic:** The tracker realizes the person is offline (because their heartbeats stopped). It won't let Sally download it right now because the file is asleep on someone's laptop. But if Bob logged in, and Bob previously downloaded those history notes, Sally could download them directly from Bob instead! True teamwork!
+### Scenario 5: Fault Tolerance (Offline Providers)
+If the original author of a note turns off their computer, their heartbeats will cease. The Tracker dynamically detects this and marks them as offline. If another user attempts to search for the file, the Tracker will inform them that no online replicas currently exist. However, if any other peer has previously downloaded that file (Scenario 4), *they* can fulfill the request instead.
 
 ---
 
-## 🎓 Why is this super cool for developers?
+## 🛠️ How to Run Locally
 
-If you are a bit older than 10 and want to know why we built it this way:
-
-- **No Single Point of Failure (for storage):** By keeping files distributed, if one peer goes down, the system doesn't lose all the data forever, as long as someone else replicated the file!
-- **Less Server Cost:** Storing terabytes of files on a central cloud database is super expensive! By storing them on user devices (peers), the server cost drops to almost 0. It only has to host lightweight text metadata!
-- **Scalability:** As more users join, they bring more download power and storage space with them. The network gets really fast as it grows! 
-
----
-
-## 🛠️ How to run it yourself! (For the Big Kids)
-
-1. **Start the Tracker Server:** Go into the `tracker` folder and start the FastAPI server. It will connect to MongoDB to keep track of everyone.
-2. **Start Peer 1:** Go into the `peer` folder, give it a unique port (like 9001), and start it. 
-3. **Start Peer 2:** Open a new terminal, and start another peer on a different port (like 9002).
-4. **Start the UI:** Go to the `frontend` folder, run `npm install` and `npm run dev`.
-
-Now you can upload a file on Peer 1, and watch Peer 2 magically discover it and download it directly from Peer 1's computer folder to its own! 
-
----
-
-### 🎉 Conclusion
-And that's it! You've just learned what a **Distributed Computing Project** is! By having computers talk to each other as helpful friends instead of relying on one big boss-server, we created a magical, robust, and cost-free way to share knowledge. 
-
-Now go share some notes! 📝✨
+1. **Tracker Setup:** 
+   Navigate to the `tracker` directory, install dependencies (`pip install -r requirements.txt`), and start the FastAPI uvicorn server. It requires a valid `MONGO_URI` in an `.env` file to store metadata.
+   
+2. **Peer Setup:** 
+   Navigate to the `peer` directory. You can start multiple peers on the same machine by assigning them different ports (e.g., 9001, 9002) using `.env`.
+   
+3. **Frontend UI:** 
+   Navigate to the `frontend` directory, run `npm install`, and start the development server using `npm run dev`. Connect the UI to your desired local peer port.
